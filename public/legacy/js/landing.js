@@ -77,12 +77,12 @@
       parent: "Phụ huynh"
     };
 
-    const targetUrl = session.role === "admin" ? "admin.html" : session.role === "teacher" ? "teacher.html" : session.role === "parent" ? "parent.html" : "student.html";
+    const targetUrl = session.role === "admin" ? "/admin" : session.role === "teacher" ? "teacher.html" : session.role === "parent" ? "parent.html" : "student.html";
     const displayName = user ? user.name : (session.role === "admin" ? "Quản trị viên" : "Người dùng");
 
     banner.innerHTML = `
       <span>👋 Chào mừng bạn trở lại, <strong>${displayName}</strong> (${roleMap[session.role] || session.role})!</span>
-      <a href="${targetUrl}">Vào bảng điều khiển ${roleMap[session.role] || ""} →</a>
+      <a href="${targetUrl}" ${session.role === "admin" ? 'target="_top"' : ""}>Vào bảng điều khiển ${roleMap[session.role] || ""} →</a>
       <button class="banner-logout" id="btn-banner-logout">Đăng xuất</button>
     `;
     banner.style.display = "flex";

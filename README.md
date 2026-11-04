@@ -54,6 +54,8 @@ Sĩ số lớp được hiển thị trong danh sách lớp và trang chi tiết
 
 Trang chủ `/` hiển thị landing page tại `public/legacy/index.html`. Mỗi vai trò có route và layout Next.js riêng; các route nhóm `(admin)`, `(teacher)`, `(student)` và `(parent)` chỉ phục vụ tổ chức mã nguồn, không xuất hiện trong URL. Các route nhúng giao diện hiện tại từ `public/legacy` để đảm bảo đủ luồng trong giai đoạn chuyển đổi. Đây là lớp tương thích trình duyệt, chưa phải bản viết lại bằng React và hiện vẫn lưu trạng thái ở localStorage. URL `/legacy/*.html` tiếp tục dùng cho tương thích. Chưa dùng cho dữ liệu thật hoặc nhiều người dùng đồng thời.
 
+Các liên kết đăng nhập Admin từ landing page đi tới route `/admin` ở cửa sổ chính (bên ngoài iframe), nên URL và route được giữ đúng khi tải lại. Danh sách Người dùng có bộ lọc Quản trị viên và hiển thị tài khoản Admin demo riêng, không cho thao tác khóa hoặc sửa tài khoản hệ thống đó.
+
 ## Cấu trúc thư mục
 
 - `src/app`: App Router; các vai trò nằm trong route groups và vẫn giữ nguyên URL hiện tại.

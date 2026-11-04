@@ -405,7 +405,7 @@
     if (!headerActions) return;
     if (!session) {
       headerActions.innerHTML = pageRole === "landing"
-        ? '<a class="button-link" href="admin.html">Đăng nhập Admin</a>'
+        ? '<a class="button-link" href="/admin" target="_top">Đăng nhập Admin</a>'
         : '<a class="ghost small" href="index.html">← Trang chủ</a>';
       return;
     }
@@ -1998,7 +1998,7 @@
       else if (session) { activeTab = "overview"; render(); }
       else renderHome();
     }
-    else if (action === "admin-login") renderLogin("admin");
+    else if (action === "admin-login") window.top.location.href = "/admin";
     else if (action === "code-login") renderLogin(b.dataset.role);
     else if (action === "logout") logout();
     else if (action === "template") downloadTemplate(b.dataset.role);
