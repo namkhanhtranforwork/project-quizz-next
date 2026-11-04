@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f8a4c" />
+    <meta
+      name="description"
+      content="Lớp học của cô v2 — Nền tảng học tập thân thiện, giao bài tập trắc nghiệm thông minh, theo dõi tiến độ và chấm điểm tức thì."
+    />
+    <title>Lớp học của cô | Phiên bản v2 Nâng cấp & Đổi mới</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/landing.css" />
+
+    <!-- Scripts -->
+    <script defer src="js/core/crypto.js"></script>
+    <script defer src="js/core/store.js"></script>
+    <script defer src="js/core/permissions.js"></script>
+    <script defer src="js/landing.js"></script>
+  </head>
+  <body data-page="landing">
+    <!-- Active Session Notification Banner -->
+    <div id="session-banner" class="active-session-banner" style="display: none;"></div>
+
+    <!-- Modern Header / Topbar -->
+    <header class="topbar v2-topbar">
+      <div class="brand-wrapper">
+        <a class="brand" href="index.html" id="brand-logo">
+          <span class="brand-mark">🐸</span>
+          <span>
+            Lớp học của cô
+            <small>Học vui · Tiến bộ mỗi ngày</small>
+          </span>
+        </a>
+        <span class="brand-badge">v2.0 Mới</span>
+      </div>
+
+      <!-- Navigation links -->
+      <nav class="v2-nav-menu" id="nav-menu">
+        <a class="v2-nav-link" href="#portals">Cổng đăng nhập</a>
+        <a class="v2-nav-link" href="#features">Tính năng v2</a>
+        <a class="v2-nav-link" href="#demo-data">Dữ liệu mẫu</a>
+        <a class="v2-nav-link" href="#mini-quiz">Làm thử Quiz</a>
+        <a class="v2-nav-link" href="#guide">Hướng dẫn</a>
+        <a class="v2-nav-link" href="#faq">Hỏi đáp</a>
+        <a class="v2-nav-cta" href="#portals">Vào lớp học →</a>
+      </nav>
+
+      <!-- Mobile Nav Toggle -->
+      <button class="mobile-nav-toggle" id="mobile-toggle" aria-label="Mở menu">
+        ☰
+      </button>
+    </header>
+
+    <main class="container">
+      <!-- HERO SECTION V2 -->
+      <section class="v2-hero">
+        <div class="v2-hero-grid">
+          <!-- Hero Left Column -->
+          <div>
+            <div class="hero-pill-badge">
+              <span class="pulse-dot"></span>
+              <span>PHIÊN BẢN V2.0 · ĐỔI MỚI TOÀN DIỆN</span>
+            </div>
+            <h1>
+              Lớp học của cô <br />
+              <span class="hero-gradient-text">Học vui, sáng tạo, tiến bộ mỗi ngày!</span>
+            </h1>
+            <p class="hero-description">
+              Không gian giáo dục tương tác thông minh kết nối Nhà trường, Thầy Cô, Học Sinh và Phụ huynh.
+              Giao bài tập trắc nghiệm chỉ trong 30 giây, học sinh làm bài sinh động không lo
+              quên mật khẩu, chấm điểm tự động và gửi phản hồi khen ngợi kịp thời.
+            </p>
+
+            <div class="v2-hero-actions">
+              <a class="btn-hero-student" href="student.html" id="cta-student-hero">
+                <span>🎒</span>
+                <span>Học sinh →</span>
+              </a>
+              <a class="btn-hero-parent" href="parent.html" id="cta-parent-hero">
+                <span>👨‍👩‍👧</span>
+                <span>Phụ huynh →</span>
+              </a>
+              <a class="btn-hero-teacher" href="teacher.html" id="cta-teacher-hero">
+                <span>🍎</span>
+                <span>Cô là Giáo viên (Quản lý) →</span>
+              </a>
+            </div>
+
+            <div class="hero-value-props">
+              <span><b class="check-icon">✓</b> Đăng nhập mã riêng không cần password</span>
+              <span><b class="check-icon">✓</b> Chấm bài &amp; nhận xét tức thì</span>
+              <span><b class="check-icon">✓</b> Tối ưu 100% điện thoại &amp; iPad</span>
+            </div>
+          </div>
+
+          <!-- Hero Right Column (Showcase Card) -->
+          <div class="hero-visual-card">
+            <!-- Floating Highlights -->
+            <div class="floating-badge badge-top-right">
+              <span>⭐</span>
+              <span>Điểm 10 xuất sắc!</span>
+            </div>
+            <div class="floating-badge badge-bottom-left">
+              <span>⚡</span>
+              <span>Tự động chấm trắc nghiệm</span>
+            </div>
+
+            <div class="hero-visual-header">
+              <div class="hero-visual-profile">
+                <div class="hero-mascot-avatar">🐸</div>
+                <div>
+                  <div class="hero-visual-title">Lớp 4A · Cô Mai Hoa</div>
+                  <div class="hero-visual-status">● Đang mở bài kiểm tra</div>
+                </div>
+              </div>
+              <span class="pill">Tuần 1</span>
+            </div>
+
+            <!-- Quiz preview item -->
+            <div class="hero-quiz-mockup">
+              <span class="mockup-question-tag">Toán &amp; Tiếng Việt vui</span>
+              <div class="mockup-question-text">
+                Câu 1: Kết quả của phép tính: 25 + 75 là bao nhiêu?
+              </div>
+              <div class="mockup-choices">
+                <div class="mockup-choice">
+                  <span>A. 90</span>
+                </div>
+                <div class="mockup-choice selected-correct">
+                  <span>B. 100</span>
+                  <span class="mockup-choice-badge">✓ Đúng</span>
+                </div>
+                <div class="mockup-choice">
+                  <span>C. 110</span>
+                </div>
+              </div>
+              <div class="mockup-feedback">
+                <span>🎉</span>
+                <span>Lời khen: "Cô khen em tính nhẩm rất nhanh và chuẩn xác!"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE SYSTEM STATS BAR -->
+      <section class="v2-stats-strip">
+        <div class="stats-strip-header">
+          <div class="stats-strip-title">
+            <span class="live-dot"></span>
+            <span>Dữ liệu thực tế trên trình duyệt của bạn</span>
+          </div>
+          <a class="stats-strip-action-link" href="#demo-data">
+            + Nạp dữ liệu thử nghiệm 1-click
+          </a>
+        </div>
+        <div class="stats-grid-v2">
+          <div class="stat-item-v2">
+            <div class="stat-number-v2" id="stat-classes">0</div>
+            <div class="stat-label-v2">🏫 Lớp học hoạt động</div>
+          </div>
+          <div class="stat-item-v2">
+            <div class="stat-number-v2" id="stat-students">0</div>
+            <div class="stat-label-v2">👨‍🎓 Học sinh trong lớp</div>
+          </div>
+          <div class="stat-item-v2">
+            <div class="stat-number-v2" id="stat-teachers">0</div>
+            <div class="stat-label-v2">👩‍🏫 Giáo viên phụ trách</div>
+          </div>
+          <div class="stat-item-v2">
+            <div class="stat-number-v2" id="stat-assignments">0</div>
+            <div class="stat-label-v2">📝 Bài tập đã giao</div>
+          </div>
+          <div class="stat-item-v2">
+            <div class="stat-number-v2" id="stat-submissions">0</div>
+            <div class="stat-label-v2">🎯 Bài đã nộp &amp; chấm</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CÁC CỔNG ĐĂNG NHẬP -->
+      <section id="portals">
+        <div class="v2-section-heading">
+          <span class="section-pill-tag">PHÂN QUYỀN ĐỘC LẬP</span>
+          <h2>Chọn khu vực dành cho bạn</h2>
+          <p>
+            Mỗi khu vực được thiết kế chuyên biệt để mang lại sự tiện lợi, an toàn và dễ sử
+            dụng nhất cho từng vai trò trong trường lớp.
+          </p>
+        </div>
+
+        <div class="portals-grid-v2">
+          <!-- Student Portal -->
+          <article class="portal-card-v2 portal-student">
+            <div>
+              <div class="portal-header-v2">
+                <div class="portal-icon-v2">🎒</div>
+                <div>
+                  <span class="portal-badge-tag portal-badge-student">Học sinh</span>
+                  <h3>Cổng Học sinh</h3>
+                </div>
+              </div>
+              <p class="portal-desc-v2">
+                Góc học tập cá nhân vui vẻ, trực quan. Các em tự giác làm bài và xem ngay kết quả.
+              </p>
+              <ul class="portal-feature-list">
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Đăng nhập bằng mã riêng (VD: <code>HS-XXXXX...</code>), không lo quên mật khẩu</span>
+                </li>
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Làm bài trắc nghiệm tương tác mượt mà trên cả điện thoại, máy tính bảng</span>
+                </li>
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Xem điểm số chính thức, đáp án đúng và lời nhận xét ấm áp của cô</span>
+                </li>
+              </ul>
+            </div>
+            <a class="portal-cta-v2 portal-cta-student" href="student.html" id="portal-btn-student">
+              <span>Đăng nhập Học sinh →</span>
+            </a>
+          </article>
+          <!-- Parent Portal -->
+          <article class="portal-card-v2 portal-parent">
+            <div>
+              <div class="portal-header-v2">
+                <div class="portal-icon-v2 portal-icon-parent">👨‍👩‍👧</div>
+                <div>
+                  <span class="portal-badge-tag portal-badge-parent">Phụ huynh</span>
+                  <h3>Cổng Phụ huynh</h3>
+                </div>
+              </div>
+              <p class="portal-desc-v2">
+                Theo dõi riêng tiến độ học tập và thông tin lớp của hồ sơ con đã được xác minh.
+              </p>
+              <ul class="portal-feature-list">
+                <li><span class="bullet">✦</span><span>Xem bài tập, kết quả và nhận xét của giáo viên</span></li>
+                <li><span class="bullet">✦</span><span>Theo dõi sơ đồ lớp khi giáo viên cho phép</span></li>
+                <li><span class="bullet">✦</span><span>Đăng nhập bằng mã phụ huynh do Admin cấp</span></li>
+              </ul>
+            </div>
+            <a class="portal-cta-v2 portal-cta-parent" href="parent.html" id="portal-btn-parent">
+              <span>Đăng nhập Phụ huynh →</span>
+            </a>
+          </article>
+          <!-- Teacher Portal -->
+          <article class="portal-card-v2 portal-teacher">
+            <div>
+              <div class="portal-header-v2">
+                <div class="portal-icon-v2 portal-icon-teacher">🍎</div>
+                <div>
+                  <span class="portal-badge-tag portal-badge-teacher">Giáo viên</span>
+                  <h3>Cổng Giáo viên</h3>
+                </div>
+              </div>
+              <p class="portal-desc-v2">
+                Trợ thủ đắc lực giúp giáo viên quản lý lớp, giao bài kiểm tra và chấm bài trong tích tắc.
+              </p>
+              <ul class="portal-feature-list">
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Chỉ quản lý lớp và học sinh mình được phân công phụ trách</span>
+                </li>
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Soạn đề trắc nghiệm tốc độ cao bằng văn bản kèm ký hiệu <code>*</code></span>
+                </li>
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Chấm bài tự động, viết nhận xét cá nhân và trả bài 1-click</span>
+                </li>
+                <li>
+                  <span class="bullet">✦</span>
+                  <span>Sổ điểm thông minh theo dõi quá trình tiến bộ của cả lớp</span>
+                </li>
+              </ul>
+            </div>
+            <a class="portal-cta-v2 portal-cta-teacher" href="teacher.html" id="portal-btn-teacher">
+              <span>Đăng nhập Giáo viên →</span>
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <!-- LEARNING WORKFLOW -->
+      <section id="learning-workflow" class="learning-workflow card">
+        <div class="learning-workflow-heading">
+          <span class="section-pill-tag">QUY TRÌNH HỌC TẬP</span>
+          <h2>Từ giao bài đến theo dõi tiến bộ</h2>
+          <p class="muted">Các bước phối hợp giữa giáo viên, học sinh và phụ huynh trên cùng một nền tảng.</p>
+        </div>
+        <ol class="learning-workflow-steps">
+          <li>
+            <span class="learning-workflow-number">1</span>
+            <div class="learning-workflow-icon" aria-hidden="true">📝</div>
+            <h3>Giáo viên giao bài</h3>
+            <p>Soạn câu hỏi, chọn lớp, đặt thời hạn và gửi bài tập đến đúng học sinh.</p>
+            <a href="teacher.html">Đến cổng Giáo viên →</a>
+          </li>
+          <li>
+            <span class="learning-workflow-number">2</span>
+            <div class="learning-workflow-icon" aria-hidden="true">✏️</div>
+            <h3>Học sinh hoàn thành</h3>
+            <p>Mở bài được giao, làm bài trên thiết bị phù hợp và nộp kết quả trực tuyến.</p>
+            <a href="student.html">Đến cổng Học sinh →</a>
+          </li>
+          <li>
+            <span class="learning-workflow-number">3</span>
+            <div class="learning-workflow-icon" aria-hidden="true">✅</div>
+            <h3>Nhận kết quả &amp; phản hồi</h3>
+            <p>Hệ thống tự chấm câu hỏi phù hợp; giáo viên chấm tự luận và gửi nhận xét.</p>
+            <a href="teacher.html">Quản lý bài nộp →</a>
+          </li>
+          <li>
+            <span class="learning-workflow-number">4</span>
+            <div class="learning-workflow-icon" aria-hidden="true">📈</div>
+            <h3>Theo dõi tiến bộ</h3>
+            <p>Học sinh xem kết quả; phụ huynh theo dõi bài tập và nhận xét của giáo viên.</p>
+            <div class="learning-workflow-links">
+              <a href="student.html">Học sinh →</a>
+              <a href="parent.html">Phụ huynh →</a>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- INTERACTIVE MINI-QUIZ EXPERIENCE -->
+      <section id="mini-quiz" class="mini-quiz-card">
+        <div class="mini-quiz-header">
+          <div>
+            <span class="section-pill-tag">THỬ THÁCH NHANH</span>
+            <h2 style="font-size: 24px; margin: 0;">🎯 Thử sức với câu hỏi mẫu</h2>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="mini-quiz-score-pill">
+              <span>🏆 Điểm của bạn:</span>
+              <span id="mini-quiz-score">0/2</span>
+            </div>
+            <button id="btn-reset-mini-quiz" class="btn-copy-code" style="padding: 6px 12px;">
+              Làm lại ↺
+            </button>
+          </div>
+        </div>
+
+        <div class="mini-quiz-body">
+          <p class="muted" style="margin-bottom: 20px;">
+            Chọn đáp án em cho là đúng để xem kết quả và lời giải ngay bên dưới:
+          </p>
+          <div id="mini-quiz-questions"></div>
+        </div>
+      </section>
+
+      <!-- WHAT'S NEW & KEY HIGHLIGHTS V2 -->
+      <section id="features">
+        <div class="v2-section-heading">
+          <span class="section-pill-tag">TÍNH NĂNG ĐỔI MỚI V2</span>
+          <h2>Nâng cấp vượt trội cho dạy &amp; học</h2>
+          <p>
+            Phiên bản v2 được tinh chỉnh dựa trên phản hồi thực tế từ giáo viên và học sinh,
+            tập trung vào tốc độ, sự đơn giản và độ tin cậy.
+          </p>
+        </div>
+
+        <div class="features-grid-v2">
+          <div class="feature-box-v2">
+            <div class="feature-icon-v2">⚡</div>
+            <h3>Đăng nhập mã bảo mật</h3>
+            <p>
+              Không còn tình trạng học sinh quên mật khẩu. Mỗi em có mã riêng biệt được chuẩn hóa tự động, loại bỏ khoảng trắng dư thừa khi sao chép.
+            </p>
+          </div>
+
+          <div class="feature-box-v2">
+            <div class="feature-icon-v2">📝</div>
+            <h3>Soạn đề siêu tốc với dấu *</h3>
+            <p>
+              Giáo viên soạn câu hỏi bằng văn bản thuần túy, chỉ cần đặt dấu <code>*</code> trước phương án đúng. Hệ thống tự động phân tích và tạo bài trong nháy mắt.
+            </p>
+          </div>
+
+          <div class="feature-box-v2">
+            <div class="feature-icon-v2">🎯</div>
+            <h3>Chấm bài &amp; Trả bài linh hoạt</h3>
+            <p>
+              Hệ thống tự động chấm điểm trắc nghiệm; giáo viên có thể điều chỉnh điểm số, viết lời nhận xét khen ngợi động viên và trả bài khi đã sẵn sàng.
+            </p>
+          </div>
+
+          <div class="feature-box-v2">
+            <div class="feature-icon-v2">📊</div>
+            <h3>Sổ điểm theo dõi tiến độ</h3>
+            <p>
+              Bảng tổng hợp điểm trực quan theo từng lớp học, hiển thị rõ ràng trạng thái chưa nộp, chờ duyệt và điểm số chính thức.
+            </p>
+          </div>
+
+          <div class="feature-box-v2">
+            <div class="feature-icon-v2">🔒</div>
+            <h3>Bảo lưu đề gốc lịch sử</h3>
+            <p>
+              Mỗi bài nộp của học sinh lưu bản snapshot câu hỏi tại thời điểm làm bài. Thầy cô chỉnh sửa đề thi sau này không làm sai lệch bài đã chấm trước đó.
+            </p>
+          </div>
+
+          <div class="feature-box-v2">
+            <div class="feature-icon-v2">📱</div>
+            <h3>Tối ưu mượt mà mọi thiết bị</h3>
+            <p>
+              Giao diện đáp ứng (responsive), phông chữ rõ ràng, nút bấm to bản dễ thao tác cho các em học sinh tiểu học trên iPad và điện thoại.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3-STEP SIMPLE WORKFLOW -->
+      <section id="guide">
+        <div class="v2-section-heading">
+          <span class="section-pill-tag">QUY TRÌNH ĐƠN GIẢN</span>
+          <h2>Cách hệ thống vận hành trong 3 bước</h2>
+          <p>
+            Quy trình làm việc khép kín giúp tiết kiệm tối đa thời gian cho nhà trường và phụ huynh.
+          </p>
+        </div>
+
+        <div class="workflow-grid-v2">
+          <div class="step-card-v2">
+            <div class="step-number-bubble">1</div>
+            <h3>Khởi tạo lớp &amp; Cấp mã</h3>
+            <p>
+              Admin nhập danh sách học sinh và giáo viên bằng file Excel/CSV mẫu. Hệ thống tự động tạo lớp học và sinh mã đăng nhập riêng cho từng người.
+            </p>
+          </div>
+
+          <div class="step-card-v2">
+            <div class="step-number-bubble">2</div>
+            <h3>Giáo viên soạn &amp; giao bài</h3>
+            <p>
+              Cô giáo đăng nhập bằng mã của mình, chọn lớp phụ trách, soạn câu hỏi trắc nghiệm và ấn nút giao bài kèm thời hạn nộp.
+            </p>
+          </div>
+
+          <div class="step-card-v2">
+            <div class="step-number-bubble">3</div>
+            <h3>Học sinh làm bài &amp; Tiến bộ</h3>
+            <p>
+              Học sinh đăng nhập bằng mã riêng, làm bài trực tiếp trên máy tính hoặc điện thoại, nộp bài và nhận điểm số cùng nhận xét của cô.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ ACCORDION -->
+      <section id="faq">
+        <div class="v2-section-heading">
+          <span class="section-pill-tag">HỎI ĐÁP PHỔ BIẾN</span>
+          <h2>Câu hỏi thường gặp</h2>
+          <p>
+            Giải đáp những thắc mắc thường gặp khi triển khai và kiểm tra ứng dụng.
+          </p>
+        </div>
+
+        <div class="faq-wrap-v2">
+          <div class="faq-item-v2 open">
+            <button class="faq-question-btn">
+              <span>Làm sao để chạy thử nghiệm trên máy tính đúng cách?</span>
+              <span class="faq-icon-arrow">▼</span>
+            </button>
+            <div class="faq-answer-content">
+              <strong>Khuyến nghị quan trọng:</strong> Bạn nên chạy qua một máy chủ cục bộ cùng địa chỉ (ví dụ: <code>http://localhost:8000/</code>) bằng cách mở PowerShell trong thư mục dự án và gõ <code>python -m http.server 8000</code> hoặc <code>npx http-server . -p 8000</code>. Tránh mở trực tiếp bằng cách nhấp đúp file (<code>file://</code>) vì mỗi file có thể bị trình duyệt tách biệt vùng nhớ <code>localStorage</code>.
+            </div>
+          </div>
+
+          <div class="faq-item-v2">
+            <button class="faq-question-btn">
+              <span>Học sinh làm mất mã đăng nhập thì xử lý thế nào?</span>
+              <span class="faq-icon-arrow">▼</span>
+            </button>
+            <div class="faq-answer-content">
+              Quản trị viên (Admin) chỉ cần vào mục <strong>Tài khoản</strong>, tìm tên học sinh và chọn <strong>Cấp mã mới</strong>. Một file CSV chứa mã mới sẽ được tải xuống để chuyển lại cho học sinh. Mã cũ sẽ tự động bị vô hiệu hóa để bảo đảm an toàn.
+            </div>
+          </div>
+
+          <div class="faq-item-v2">
+            <button class="faq-question-btn">
+              <span>Dữ liệu làm bài và điểm số được lưu trữ ở đâu?</span>
+              <span class="faq-icon-arrow">▼</span>
+            </button>
+            <div class="faq-answer-content">
+              Trong bản thử nghiệm nguyên mẫu (MVP v2), toàn bộ danh sách tài khoản, bài tập và kết quả bài làm được lưu trong <code>localStorage</code> của trình duyệt hiện tại. Khi triển khai trường học thực tế, hệ thống sẽ kết nối với máy chủ Backend và cơ sở dữ liệu tập trung (PostgreSQL / Supabase) để đồng bộ đa thiết bị.
+            </div>
+          </div>
+
+          <div class="faq-item-v2">
+            <button class="faq-question-btn">
+              <span>Giáo viên lớp này có xem được dữ liệu của lớp khác không?</span>
+              <span class="faq-icon-arrow">▼</span>
+            </button>
+            <div class="faq-answer-content">
+              Không. Hệ thống áp dụng nguyên tắc phân quyền chặt chẽ: Giáo viên chỉ được xem và quản lý những lớp học mà Admin đã phân công phụ trách. Học sinh cũng chỉ thấy bài tập của lớp mình và chỉ xem được bài nộp của chính bản thân.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- MODERN FOOTER V2 -->
+    <footer class="v2-footer">
+      <div class="footer-content-grid">
+        <div class="footer-brand-col">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">🐸</span>
+            <span>
+              Lớp học của cô
+              <small>Học vui · Tiến bộ mỗi ngày</small>
+            </span>
+          </a>
+          <p>
+            Không gian học tập và giao bài trắc nghiệm thông minh, kết nối chặt chẽ giữa Nhà trường, Thầy Cô và Học Sinh tiểu học.
+          </p>
+          <div class="footer-badge-status">
+            <span>🟢</span>
+            <span>Hệ thống thử nghiệm Localhost v2.0 Sẵn sàng</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="footer-col-title">
+            <span>🚪</span>
+            <span>Cổng Đăng Nhập</span>
+          </div>
+          <ul class="footer-links-list">
+            <li><a href="student.html"><span>🎒</span><span>Cổng Học sinh</span></a></li>
+            <li><a href="parent.html"><span>👨‍👩‍👧</span><span>Cổng Phụ huynh</span></a></li>
+            <li><a href="teacher.html"><span>🍎</span><span>Cổng Giáo viên</span></a></li>
+            <li><a href="admin.html"><span>👨‍💼</span><span>Cổng Quản trị viên</span></a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">
+            <span>⚡</span>
+            <span>Khám Phá</span>
+          </div>
+          <ul class="footer-links-list">
+            <li><a href="#demo-data"><span>✨</span><span>Dữ liệu mẫu 1-click</span></a></li>
+            <li><a href="#mini-quiz"><span>🎯</span><span>Làm thử trắc nghiệm</span></a></li>
+            <li><a href="#features"><span>💡</span><span>Tính năng đổi mới v2</span></a></li>
+            <li><a href="#guide"><span>📋</span><span>Quy trình 3 bước</span></a></li>
+            <li><a href="#faq"><span>❓</span><span>Câu hỏi thường gặp</span></a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">
+            <span>📚</span>
+            <span>Tài Liệu Hướng Dẫn</span>
+          </div>
+          <ul class="footer-links-list">
+            <li><a href="HUONG_DAN_KIEM_TRA_DANG_NHAP_HOC_SINH.md" target="_blank"><span>📖</span><span>Hướng dẫn học sinh</span></a></li>
+            <li><a href="CHANGELOG_P0.md" target="_blank"><span>📝</span><span>Nhật ký cập nhật v2</span></a></li>
+            <li><a href="dac-ta-nghiep-vu.md" target="_blank"><span>📑</span><span>Đặc tả nghiệp vụ</span></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div>
+          © 2026 <strong>Lớp học của cô</strong> · Phiên bản v2.0 Nâng cấp &amp; Đổi mới
+        </div>
+        <div style="display: flex; gap: 16px; align-items: center;">
+          <a href="#brand-logo" class="btn-back-to-top" id="btn-back-to-top">
+            <span>↑</span>
+            <span>Lên đầu trang</span>
+          </a>
+          <a href="admin.html" class="footer-admin-link">Quản trị viên</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

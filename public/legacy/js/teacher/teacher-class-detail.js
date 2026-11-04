@@ -1,0 +1,23 @@
+/* Teacher view module: class-detail. Generated from the existing MVP renderer. */
+(function () {
+  "use strict";
+  window.TeacherViews = window.TeacherViews || {};
+  window.TeacherViews.class_detail = function (ctx) {
+    const { state, esc, clsName, currentUserName, classes, students, assignments, submissions, pending, dueSoon, classId, current, activeTab, app, session, allowedClass } = ctx;
+
+      const classStudentIds = window.Core?.getActiveClassStudentIds?.(state, current.id)
+        || students.filter(student => (student.classIds || []).includes(current.id)).map(student => student.id);
+      const classStudents = classStudentIds
+        .map(studentId => state.users.find(user => user.id === studentId && user.role === "student" && user.active !== false))
+        .filter(Boolean);
+      const classAssignments = assignments.filter(a=>a.classId===current.id);
+      const teacherAssignments=(state.classTeacherAssignments||[]).filter(item=>item.classId===current.id&&item.status==="active"&&!item.revokedAt);
+      const canManageTeachers=window.Core?.canManageClassTeachers(state,session,current.id)||false;
+    return `<section class="card"><div class="row"><div><h2>${esc(current.name)}</h2><p class="muted">Mã lớp: ${esc(current.code)}</p></div><span class="pill">Sĩ số: ${classStudents.length} học sinh</span></div>
+        <hr><h3>Giáo viên bộ môn</h3>${teacherAssignments.length?`<div class="table-wrap"><table><thead><tr><th>Giáo viên</th><th>Môn học</th><th>Vai trò</th></tr></thead><tbody>${teacherAssignments.map(item=>`<tr><td>${esc(state.users.find(user=>user.id===item.teacherId)?.name||"Giáo viên")}</td><td>${esc(state.subjects.find(subject=>subject.id===item.subjectId)?.name||"Chưa phân loại")}</td><td>${item.role==="homeroom_teacher"?"Giáo viên chủ nhiệm":"Giáo viên bộ môn"} ${canManageTeachers&&item.role!=="homeroom_teacher"?`<button class="small danger" data-action="revoke-class-teacher" data-id="${esc(item.id)}">Thu hồi</button>`:""}</td></tr>`).join("")}</tbody></table></div>`:'<p class="empty">Chưa có phân công chuyên môn.</p>'}
+        ${canManageTeachers?`<form id="teacher-assignment-form" class="form-grid"><input type="hidden" name="classId" value="${esc(current.id)}"><div><label for="subject-teacher-id">Giáo viên</label><select id="subject-teacher-id" name="teacherId" required><option value="">Chọn giáo viên</option>${state.users.filter(user=>user.role==="teacher"&&user.active!==false).map(user=>`<option value="${esc(user.id)}">${esc(user.name)} · ${esc(user.publicCode||"")}</option>`).join("")}</select></div><div><label for="subject-teacher-subject">Môn học</label><select id="subject-teacher-subject" name="subjectId" required><option value="">Chọn môn học</option>${state.subjects.filter(subject=>subject.active!==false).map(subject=>`<option value="${esc(subject.id)}">${esc(subject.name)}</option>`).join("")}</select></div><div class="actions"><button type="submit">Thêm giáo viên bộ môn</button></div></form>`:""}
+        <h3>Thêm học sinh vào lớp</h3><form id="add-student-form" class="form-grid"><input type="hidden" id="target-class" value="${current.id}"><div><label for="student-select">Chọn hồ sơ học sinh đã có</label><select id="student-select"><option value="">Chọn học sinh</option>${state.users.filter(u=>u.role==="student"&&u.active!==false&&!(u.classIds||[]).includes(current.id)).map(u=>`<option value="${u.id}">${esc(u.name)} · ${esc(u.publicCode)}</option>`).join("")}</select></div><div class="actions"><button type="submit">Thêm vào lớp</button></div></form>
+        <hr><h3>Danh sách học sinh</h3>${classStudents.length?`<div class="table-wrap"><table><thead><tr><th>Học sinh</th><th>Mã hồ sơ</th><th>Bài đã nộp</th><th>Thao tác</th></tr></thead><tbody>${classStudents.map(s=>`<tr><td>${esc(s.name)}</td><td class="code">${esc(s.publicCode)}</td><td>${submissions.filter(x=>x.studentId===s.id&&classAssignments.some(a=>a.id===x.assignmentId)).length}</td><td><button class="small ghost" data-action="remove-student" data-id="${s.id}" data-class="${current.id}">Gỡ khỏi lớp</button></td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">Lớp chưa có học sinh.</div>'}
+        <hr><h3>Bài tập của lớp</h3><button data-tab="assignments">Tạo / quản lý bài tập</button>${classAssignments.length?classAssignments.map(a=>`<div class="question"><div class="row"><b>${esc(a.title)}</b><span class="pill">${a.questions.length} câu</span></div><p class="muted">Hạn: ${esc(a.due||"Không đặt hạn")} · ${submissions.filter(s=>s.assignmentId===a.id).length} bài nộp</p><button class="small secondary" data-action="view-assignment-submissions" data-id="${a.id}">Xem bài nộp</button></div>`).join(""):'<div class="empty">Chưa có bài tập cho lớp này.</div>'}</section>`;
+  };
+})();
