@@ -13,8 +13,10 @@ Dự án mới tách biệt khỏi phiên bản HTML/JavaScript hiện tại. N�
 
 ## Chạy trên máy phát triển
 
-1. Tạo database PostgreSQL tên `project_quizz`.
-2. Sao chép `.env.example` thành `.env` và cập nhật `DATABASE_URL`.
+1. Tạo project Supabase hoặc database PostgreSQL tên `project_quizz`.
+2. Nếu chưa có `.env`, sao chép `.env.example`; nếu đã có thì cập nhật `DATABASE_URL` và `DIRECT_URL` theo mẫu trong `.env.example`. Thay `[PASSWORD]` bằng database password trong Supabase **Connect**; nếu có ký tự đặc biệt, URL-encode password trước khi đặt vào URL. Không commit `.env`.
+   - Mẫu dùng kết nối trực tiếp `db.cwbewsezobxefteozrky.supabase.co:5432` cho phát triển local và migration. Kết nối trực tiếp có thể cần mạng hỗ trợ IPv6; nếu không kết nối được, dùng pooler URL trong Supabase **Connect**.
+   - Khi triển khai serverless, dùng Transaction pooler (cổng `6543`) cho `DATABASE_URL` và giữ kết nối trực tiếp/session pooler cho `DIRECT_URL`; thêm `pgbouncer=true` vào URL transaction pooler.
 3. Cài dependencies và sinh Prisma Client:
 
    ```bash
@@ -22,10 +24,16 @@ Dự án mới tách biệt khỏi phiên bản HTML/JavaScript hiện tại. N�
    npm run db:generate
    ```
 
-4. Khi đã có model đầu tiên trong `prisma/schema.prisma`, tạo và áp dụng migration:
+4. Áp dụng schema migration đã có vào database mới:
 
    ```bash
-   npm run db:migrate -- --name init
+   npm run db:deploy
+   ```
+
+   Khi phát triển schema, cập nhật `prisma/schema.prisma` rồi tạo migration:
+
+   ```bash
+   npm run db:migrate -- --name <ten-thay-doi>
    ```
 
 5. Khởi chạy ứng dụng:
@@ -56,6 +64,8 @@ Trang chủ `/` hiển thị landing page tại `public/legacy/index.html`. Mỗ
 
 Các liên kết đăng nhập Admin từ landing page đi tới route `/admin` ở cửa sổ chính (bên ngoài iframe), nên URL và route được giữ đúng khi tải lại. Danh sách Người dùng có bộ lọc Quản trị viên và hiển thị tài khoản Admin demo riêng, không cho thao tác khóa hoặc sửa tài khoản hệ thống đó.
 
+Trong bản MVP localStorage, mục Người dùng liệt kê Admin thật trong trình duyệt hiện tại và tách rõ tài khoản demo. Admin toàn quyền có thể tạo Admin mới, chọn quyền theo module; Admin mới đăng nhập bằng mã được hiển thị một lần. Tài khoản Admin cũ không có cấu hình quyền riêng được giữ toàn quyền để tương thích. Đây chỉ là phân quyền giao diện phía trình duyệt, không bảo vệ dữ liệu thật; không triển khai với dữ liệu trường học/Supabase cho tới khi xác thực và kiểm tra quyền được thực hiện ở server.
+
 ## Cấu trúc thư mục
 
 - `src/app`: App Router; các vai trò nằm trong route groups và vẫn giữ nguyên URL hiện tại.
@@ -67,18 +77,28 @@ Các liên kết đăng nhập Admin từ landing page đi tới route `/admin` 
 - `public/images`, `public/icons`, `public/fonts`: tài nguyên tĩnh mới; `public/legacy` được giữ nguyên để tương thích.
 - `tests` và `docs`: khung thư mục cho kiểm thử và tài liệu.
 
-Các thư mục chưa có mã nghiệp vụ được giữ bằng `.gitkeep`. Phân quyền server-side hiện chưa được triển khai (`permissions.config.ts` đang tắt); cấu trúc này chưa dùng Supabase và không thay thế Prisma.
+Các thư mục chưa có mã nghiệp vụ được giữ bằng `.gitkeep`. Supabase cung cấp PostgreSQL; Prisma Client và Prisma Migrate tiếp tục là lớp truy cập dữ liệu và công cụ quản lý schema. Ứng dụng chưa triển khai xác thực hoặc phân quyền server-side (`permissions.config.ts` đang tắt).
 
 ## Database và SQL migration
 
-- Mô hình dữ liệu có phiên bản được khai báo trong `prisma/schema.prisma`.
+- Mô hình dữ liệu được tách khỏi giao diện và khai báo trong `prisma/schema.prisma`.
 - SQL của từng thay đổi nằm riêng trong `prisma/migrations/<timestamp>_<name>/migration.sql`.
 - Không chỉnh tay database production; cập nhật Prisma schema, tạo migration ở môi trường phát triển, review file SQL rồi mới áp dụng.
-- Migration đầu tiên hiện chỉ tạo schema, chưa được áp dụng vì chưa có PostgreSQL được cấu hình.
+- Migration `20261104100000_initial` tạo cấu trúc bảng, quan hệ và index ban đầu; migration không chứa dữ liệu người dùng.
+- Migration bật RLS trên toàn bộ bảng trong schema `public` và chưa tạo policy truy cập. Data API sẽ không đọc/ghi được các bảng này cho tới khi triển khai policy theo xác thực server-side. Không cấp policy rộng cho `anon` hoặc `authenticated`.
+- Với project chỉ dùng Prisma, có thể tắt Supabase Data API trong phần API Settings.
 
 ```bash
 npm run db:migrate -- --name <ten-thay-doi>
 npm run db:deploy
+```
+
+`npm run db:deploy` dùng `DIRECT_URL` để áp dụng migration. Đặt biến này trong `.env` trước khi chạy; không chạy migration production với `prisma migrate dev`.
+
+Nếu chạy toàn bộ SQL của migration bằng Supabase SQL Editor thay vì `npm run db:deploy`, chỉ chạy trên database đích chưa có các bảng này. Sau khi SQL chạy thành công, đồng bộ lịch sử Prisma để lần deploy sau không tạo lại schema:
+
+```bash
+npx prisma migrate resolve --applied 20261104100000_initial
 ```
 
 ### Chuyển backup từ ứng dụng cũ
@@ -116,5 +136,5 @@ Không commit `.env` hoặc thông tin kết nối thật. `.env.example` chỉ 
 ## Trạng thái và giới hạn
 
 - Chưa có API nghiệp vụ hoặc xác thực/phân quyền phía server; giao diện cũ còn dùng localStorage.
-- PostgreSQL schema/migration và tiện ích nhập backup đã được chuẩn bị, nhưng migration chưa được áp dụng và tiện ích nhập chưa được chạy nếu chưa cấu hình database.
+- PostgreSQL schema/migration và tiện ích nhập backup đã được chuẩn bị; cần cấu hình connection string Supabase trong `.env` rồi chạy `npm run db:deploy` để áp dụng migration.
 - Bản cũ được giữ nguyên tại thư mục dự án ban đầu làm bản tham chiếu.

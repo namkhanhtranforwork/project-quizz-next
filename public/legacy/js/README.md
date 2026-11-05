@@ -16,7 +16,7 @@
 - `admin-overview.js`: tổng quan và nhật ký gần đây.
 - `admin-import.js`: giao diện nhập Excel/CSV, tải mẫu và tạo lớp nhanh.
 - `admin-backup.js`: xuất/khôi phục backup JSON cục bộ có phiên bản; trình bày mockup backup hệ thống chưa kết nối backend.
-- `admin-users.js`: danh sách, lọc tài khoản, khóa/mở khóa, cấp lại mã.
+- `admin-users.js`: danh sách/lọc tài khoản và tạo Admin mới với quyền theo module.
 - `admin-classes.js`: tạo lớp, phân công giáo viên, xuất danh sách.
 - `admin-audit.js`: phân hệ Nhật ký & dữ liệu với tab nhật ký, backup cục bộ và mockup backup hệ thống.
 
@@ -34,6 +34,6 @@ Các file module phải được tải bằng `defer` trước `app.js`:
 
 Trang Admin nạp thêm `css/admin-dashboard.css` sau `css/styles.css` để giới hạn design system, backdrop chấm và responsive sidebar trong phạm vi Admin.
 
-`store.js` giữ schema v4 và migration lặp an toàn; trước khi nâng dữ liệu cũ, tạo bản JSON sao lưu localStorage. `backup.js` kiểm tra định dạng/schema và chuyển đổi bản backup cũ lên schema hiện tại trước khi khôi phục. Backup do trình duyệt tạo chứa dữ liệu cá nhân và mã băm, chưa mã hóa và không phải lưu trữ server. `academic.js` chứa kiểm tra phân công giáo viên, chủ sở hữu/phiên bản Quiz và tính toàn vẹn sơ đồ lớp. Đây là logic phía trình duyệt, không thay thế kiểm tra quyền ở backend.
+`store.js` giữ schema v4 và migration lặp an toàn; trước khi nâng dữ liệu cũ, tạo bản JSON sao lưu localStorage. `backup.js` kiểm tra định dạng/schema và chuyển đổi bản backup cũ lên schema hiện tại trước khi khôi phục. Admin cũ không có `adminPermissions` được giữ toàn quyền; Admin mới được giới hạn theo module, và chỉ Admin toàn quyền mới được tạo Admin. Mã Admin mới chỉ hiển thị ngay sau khi tạo. Dữ liệu quyền vẫn ở localStorage và chỉ phục vụ MVP: người dùng có thể sửa dữ liệu/JavaScript trên trình duyệt, nên không dùng làm ranh giới bảo mật production. Backup do trình duyệt tạo chứa dữ liệu cá nhân và mã băm, chưa mã hóa và không phải lưu trữ server. `academic.js` chứa kiểm tra phân công giáo viên, chủ sở hữu/phiên bản Quiz và tính toàn vẹn sơ đồ lớp. Đây là logic phía trình duyệt, không thay thế kiểm tra quyền ở backend.
 
 `app.js` sử dụng các hàm dùng chung từ `window.Core`. Dữ liệu vẫn chỉ nằm trên trình duyệt hiện tại; đây là MVP, chưa phải backend bảo mật production.

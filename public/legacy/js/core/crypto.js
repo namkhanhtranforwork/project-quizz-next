@@ -46,7 +46,7 @@
     else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
     const raw = Array.from(bytes, b => alphabet[b % alphabet.length]).join("");
     const groups = raw.match(/.{1,5}/g).join("-");
-    return (role === "teacher" ? "GV" : role === "parent" ? "PH" : "HS") + "-" + groups;
+    return (role === "teacher" ? "GV" : role === "parent" ? "PH" : role === "admin" ? "ADM" : "HS") + "-" + groups;
   }
 
   Object.assign(window.Core, {

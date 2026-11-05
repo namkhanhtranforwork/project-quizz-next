@@ -35,7 +35,7 @@
     else for (let i=0;i<bytes.length;i++) bytes[i] = Math.floor(Math.random()*256);
     const raw = Array.from(bytes, b => alphabet[b % alphabet.length]).join("");
     const groups = raw.match(/.{1,5}/g).join("-");
-    return (role === "teacher" ? "GV" : role === "parent" ? "PH" : "HS") + "-" + groups;
+    return (role === "teacher" ? "GV" : role === "parent" ? "PH" : role === "admin" ? "ADM" : "HS") + "-" + groups;
   };
   const normalizeLoginCode = Core.normalizeLoginCode || function(code) {
     return String(code || "").normalize("NFKC").toUpperCase().replace(/[\u2010-\u2015\u2212]/g, "-").replace(/[\s\uFEFF]/g, "").replace(/[^A-Z0-9-]/g, "");
@@ -116,6 +116,16 @@
   function isAdmin() {
     return Core.isAdmin ? Core.isAdmin(session) : session?.role === "admin";
   }
+  function canAdminAccess(module) {
+    return Core.canAdminAccess
+      ? Core.canAdminAccess(module, session, state)
+      : isAdmin();
+  }
+  function canManageAdminAccess() {
+    return Core.canManageAdminAccess
+      ? Core.canManageAdminAccess(session, state)
+      : isAdmin();
+  }
   let lockExpiryTimer = null;
   function expireTimedLocks() {
     const now=Date.now();
@@ -152,7 +162,7 @@
       });
     }
     if (!session) return false;
-    if (session.role === "admin") return true;
+    if (session.role === "admin" && session.id === "admin-demo") return true;
     const user = state.users.find(u => u.id === session.id);
     if (!user || user.active === false) {
       session = null;
@@ -370,6 +380,7 @@
 
   let activeTab = "overview";
   let adminDataTab = "logs";
+  let adminUserTab = "accounts";
   let pendingImport = null;
   let pendingBackupRestore = null;
   let parentProvisionResult = null;
@@ -442,6 +453,14 @@
       </div>`;
   }
   function renderAdmin() {
+    const availableModules = (Core.ADMIN_MODULES || []).filter(canAdminAccess);
+    if (!availableModules.length) {
+      app.innerHTML = '<section class="card notice"><h1>Chưa được cấp quyền quản trị</h1><p>Tài khoản này chưa được cấp quyền vào module nào. Hãy liên hệ Admin toàn quyền.</p><button data-action="logout">Đăng xuất</button></section>';
+      return;
+    }
+    if (!canAdminAccess(activeTab)) {
+      activeTab = availableModules[0];
+    }
     const classes = state.classes;
     const classId = uiState.teacherLayoutClassId || classes[0]?.id || "";
     const current = classes.find(item => item.id === classId);
@@ -457,9 +476,17 @@
     window.AdminViews.render({
       app, state, esc, roleName, clsName, userStatus,
       adminDataTab,
+      adminUserTab,
+      canAdminAccess,
+      canManageAdminAccess: canManageAdminAccess(),
+      loginCodeReveal: loginCodeReveal && {
+        ...loginCodeReveal,
+        name: state.users.find(user => user.id === loginCodeReveal.userId)?.name || "quản trị viên"
+      },
       activeTab, setActiveTab: value => { activeTab = value; },
       render, downloadBlob, parentProvisionResult, classroomContext, quizBankContext
     });
+    loginCodeReveal = null;
     if (activeTab === "classroom") window.TeacherViews.bindClassroom(classroomContext);
   }
   function renderTeacher() {
@@ -636,10 +663,10 @@
   function renderLogin(kind) {
     const admin = kind==="admin";
     const learnerPortal = kind === "learner";
-    app.innerHTML = `<section class="card login-wrap"><h1>${admin?"Đăng nhập Admin":kind==="teacher"?"Đăng nhập Giáo viên":learnerPortal?"Cổng Học sinh &amp; Phụ huynh":kind==="parent"?"Đăng nhập Phụ huynh":"Đăng nhập Học sinh"}</h1><p class="muted">${admin?"Sử dụng tài khoản và mật khẩu quản trị.":learnerPortal?"Chọn vai trò rồi nhập mã đăng nhập riêng do Admin cấp.":"Nhập mã đăng nhập riêng do Admin cấp."}</p>
-      ${admin?`<form id="login-form"><label for="login-user">Tài khoản</label><input id="login-user" autocomplete="username" required><label for="login-password">Mật khẩu</label><input id="login-password" type="password" autocomplete="current-password" required><div class="actions"><button type="submit">Đăng nhập</button><button type="button" class="ghost" data-action="home">Quay lại</button></div></form>`:
+    app.innerHTML = `<section class="card login-wrap"><h1>${admin?"Đăng nhập Admin":kind==="teacher"?"Đăng nhập Giáo viên":learnerPortal?"Cổng Học sinh &amp; Phụ huynh":kind==="parent"?"Đăng nhập Phụ huynh":"Đăng nhập Học sinh"}</h1><p class="muted">${admin?"Dùng mã Admin được cấp hoặc tài khoản demo.":learnerPortal?"Chọn vai trò rồi nhập mã đăng nhập riêng do Admin cấp.":"Nhập mã đăng nhập riêng do Admin cấp."}</p>
+      ${admin?`<form id="login-form"><label for="login-admin-code">Mã đăng nhập quản trị</label><input id="login-admin-code" autocomplete="off" placeholder="ADM-XXXXX-XXXXX-XXXXX"><p class="smalltext">Hoặc dùng tài khoản demo bên dưới.</p><label for="login-user">Tài khoản demo</label><input id="login-user" autocomplete="username"><label for="login-password">Mật khẩu demo</label><input id="login-password" type="password" autocomplete="current-password"><div class="actions"><button type="submit">Đăng nhập</button><button type="button" class="ghost" data-action="home">Quay lại</button></div></form>`:
       `<form id="login-form">${learnerPortal?'<label for="login-role">Vai trò</label><select id="login-role" name="role"><option value="student">Học sinh</option><option value="parent">Phụ huynh</option></select>':""}<label for="login-code">Mã đăng nhập</label><input id="login-code" autocomplete="off" required placeholder="${kind==="teacher"?"GV-XXXXX-XXXXX-XXXXX":kind==="parent"?"PH-XXXXX-XXXXX-XXXXX":learnerPortal?"HS-XXXXX-XXXXX-XXXXX hoặc PH-XXXXX-XXXXX-XXXXX":"HS-XXXXX-XXXXX-XXXXX"}"><div class="actions"><button type="submit">Đăng nhập</button><button type="button" class="ghost" data-action="home">Quay lại</button></div></form>`}
-      ${admin?'<div class="notice">Bản demo: đăng nhập mặc định <b>admin</b> / <b>Admin@123</b>. Không dùng thông tin này trong môi trường thật.</div>':'<div class="notice">Mã đăng nhập chỉ được tạo khi Admin nhập Excel hoặc cấp mã mới trong khu vực quản trị.</div>'}</section>`;
+      ${admin?'<div class="notice">Bản MVP lưu tài khoản trong trình duyệt. Tài khoản demo mặc định <b>admin</b> / <b>Admin@123</b> không an toàn cho môi trường thật.</div>':'<div class="notice">Mã đăng nhập chỉ được tạo khi Admin nhập Excel hoặc cấp mã mới trong khu vực quản trị.</div>'}</section>`;
   }
   function normalizeKey(obj, keys) {
     const map = {};
@@ -1177,6 +1204,182 @@
       }catch(error){toast(error.message);}
     });
     modal.focus();
+  }
+  function subjectCode(name, excludeId = "") {
+    const base = String(name || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[đĐ]/g, "D")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 40) || "MON";
+    let code = base;
+    let suffix = 2;
+    while (state.subjects.some(subject =>
+      subject.id !== excludeId && String(subject.code || "").trim().toUpperCase() === code
+    )) {
+      code = `${base.slice(0, 36)}_${suffix++}`;
+    }
+    return code;
+  }
+  function showSubjectDetails(subjectId, trigger) {
+    if (!requireActiveSession() || pageRole !== "admin" || !canAdminAccess("subjects")) {
+      toast("Bạn không có quyền xem hoặc chỉnh sửa danh mục môn học.");
+      return;
+    }
+    const subject = state.subjects.find(item => item.id === subjectId);
+    if (!subject) {
+      toast("Không tìm thấy môn học cần xem.");
+      return;
+    }
+
+    const teacherAssignments = (state.classTeacherAssignments || []).filter(item =>
+      item.subjectId === subject.id && item.status === "active" && !item.revokedAt
+    );
+    const quizzes = (state.quizzes || []).filter(item => item.subjectId === subject.id);
+    const assignments = (state.assignments || []).filter(item => item.subjectId === subject.id);
+    const listRows = (items, renderRow, emptyText) => items.length
+      ? `<ul class="account-detail-list">${items.slice(0, 10).map(renderRow).join("")}</ul>${items.length > 10 ? `<p class="muted smalltext">Còn ${items.length - 10} mục khác.</p>` : ""}`
+      : `<p class="muted">${emptyText}</p>`;
+    const overlay = document.createElement("div");
+    overlay.className = "account-detail-overlay subject-detail-overlay";
+    overlay.innerHTML = `<section class="account-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="subject-detail-title" tabindex="-1">
+      <header class="account-detail-heading">
+        <div><p class="eyebrow">CHI TIẾT MÔN HỌC</p><h2 id="subject-detail-title">${esc(subject.name || "Môn học")}</h2><p class="muted">${esc(subject.code || "Chưa đặt mã")} · ${subject.active === false ? '<span class="pill off">Đã ẩn</span>' : '<span class="pill">Đang hoạt động</span>'}</p></div>
+        <button type="button" class="ghost small" data-close-subject-details aria-label="Đóng chi tiết môn học">Đóng</button>
+      </header>
+      <section class="account-detail-section">
+        <h3>Tùy chỉnh thông tin môn học</h3>
+        <form id="admin-subject-edit-form" class="form-grid">
+          <div><label for="edit-subject-name">Tên môn học</label><input id="edit-subject-name" name="name" required maxlength="80" value="${esc(subject.name || "")}"></div>
+          <div><label for="edit-subject-code">Mã môn học</label><input id="edit-subject-code" name="code" required maxlength="48" value="${esc(subject.code || subjectCode(subject.name, subject.id))}"><small class="muted">Mã duy nhất, dùng chữ không dấu, số hoặc dấu gạch dưới.</small></div>
+          <label class="checkbox-row wide"><input type="checkbox" name="active" ${subject.active === false ? "" : "checked"}><span>Đang hoạt động (bỏ chọn để ẩn, không xóa dữ liệu liên quan)</span></label>
+          <div class="actions"><button type="submit">Lưu tùy chỉnh</button></div>
+        </form>
+      </section>
+      <section class="account-detail-section">
+        <h3>Dữ liệu đang sử dụng môn học</h3>
+        <div class="account-detail-stats">
+          <div><b>${teacherAssignments.length}</b><span>Phân công giáo viên</span></div>
+          <div><b>${quizzes.length}</b><span>Quiz trong ngân hàng</span></div>
+          <div><b>${assignments.length}</b><span>Bài tập</span></div>
+        </div>
+        <h4>Giáo viên được phân công</h4>
+        ${listRows(teacherAssignments, item => {
+          const teacher = state.users.find(user => user.id === item.teacherId);
+          const cls = state.classes.find(value => value.id === item.classId);
+          return `<li>${esc(teacher?.name || "Giáo viên không còn hoạt động")} · ${esc(cls?.name || "Lớp không tồn tại")}</li>`;
+        }, "Chưa có giáo viên được phân công môn này.")}
+        <h4>Quiz</h4>
+        ${listRows(quizzes, quiz => `<li>${esc(quiz.title || "Quiz chưa có tên")}</li>`, "Chưa có Quiz thuộc môn học này.")}
+        <h4>Bài tập</h4>
+        ${listRows(assignments, assignment => `<li>${esc(assignment.title || "Bài tập chưa có tên")} · ${esc(clsName(assignment.classId))}</li>`, "Chưa có bài tập dùng môn học này.")}
+      </section>
+      <footer class="account-detail-footer">
+        <span class="muted">Tạo lúc: ${esc(subject.createdAt ? new Date(subject.createdAt).toLocaleString("vi-VN") : "-")}</span>
+        <div class="account-detail-actions">
+          ${(teacherAssignments.length === 0 && quizzes.length === 0 && assignments.length === 0)
+            ? `<button type="button" class="small danger" data-delete-subject="${esc(subject.id)}">Xóa môn học</button>`
+            : ""
+          }
+          <button type="button" class="secondary" data-close-subject-details>Đóng</button>
+        </div>
+      </footer>
+    </section>`;
+    document.body.appendChild(overlay);
+    const dialog = overlay.querySelector(".account-detail-dialog");
+    const close = () => {
+      overlay.remove();
+      trigger?.focus();
+    };
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) close();
+    });
+    overlay.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    });
+    overlay.querySelectorAll("[data-close-subject-details]").forEach(btn => btn.addEventListener("click", close));
+    const deleteBtn = overlay.querySelector("[data-delete-subject]");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", () => {
+        if (!confirm(`Bạn có chắc chắn muốn xóa môn học "${subject.name}" không? Thao tác này không thể hoàn tác.`)) return;
+        const index = state.subjects.findIndex(item => item.id === subject.id);
+        if (index !== -1) {
+          state.subjects.splice(index, 1);
+          try {
+            persist();
+          } catch (error) {
+            console.error("Không thể xóa môn học.", error);
+            toast("Không thể xóa môn học. Hãy thử lại.");
+            return;
+          }
+          log("DELETE_SUBJECT", { subjectId: subject.id, name: subject.name, code: subject.code });
+          close();
+          render();
+          toast(`Đã xóa môn ${subject.name}.`, true);
+        }
+      });
+    }
+    overlay.querySelector("#admin-subject-edit-form").addEventListener("submit", event => {
+      event.preventDefault();
+      if (!requireActiveSession() || !canAdminAccess("subjects")) {
+        toast("Bạn không có quyền chỉnh sửa môn học.");
+        return;
+      }
+      const form = event.currentTarget;
+      const name = form.elements.name.value.trim().normalize("NFKC");
+      const code = form.elements.code.value.trim().normalize("NFKC").toUpperCase();
+      if (!name || !code) {
+        toast("Tên môn và mã môn không được để trống.");
+        return;
+      }
+      if (!/^[A-Z0-9_]{1,48}$/.test(code)) {
+        toast("Mã môn chỉ gồm chữ không dấu, số và dấu gạch dưới (tối đa 48 ký tự).");
+        return;
+      }
+      if (state.subjects.some(item =>
+        item.id !== subject.id && String(item.name || "").trim().normalize("NFKC").toLocaleLowerCase("vi") === name.toLocaleLowerCase("vi")
+      )) {
+        toast("Tên môn học này đã được sử dụng.");
+        return;
+      }
+      if (state.subjects.some(item =>
+        item.id !== subject.id && String(item.code || "").trim().toUpperCase() === code
+      )) {
+        toast("Mã môn học này đã được sử dụng.");
+        return;
+      }
+      const previous = { name: subject.name || "", code: subject.code || "", active: subject.active !== false };
+      subject.name = name;
+      subject.code = code;
+      subject.active = form.elements.active.checked;
+      subject.updatedAt = new Date().toISOString();
+      try {
+        persist();
+      } catch (error) {
+        subject.name = previous.name;
+        subject.code = previous.code;
+        subject.active = previous.active;
+        console.error("Không thể lưu tùy chỉnh môn học.", error);
+        toast("Không thể lưu tùy chỉnh môn học. Hãy giải phóng dung lượng trình duyệt rồi thử lại.");
+        return;
+      }
+      log("UPDATE_SUBJECT", {
+        subjectId: subject.id,
+        previous,
+        name: subject.name,
+        code: subject.code,
+        active: subject.active
+      });
+      close();
+      render();
+      toast(`Đã cập nhật môn ${subject.name}.`, true);
+    });
+    dialog.focus();
   }
   function createClass(form) {
     const name=form.querySelector("#class-name").value.trim(),code=form.querySelector("#class-code").value.trim();
@@ -1788,6 +1991,28 @@
 
     if (b.dataset.tab) {
       const tab = b.dataset.tab;
+      if (tab === "import" && pageRole === "admin") {
+        activeTab = "users";
+        adminUserTab = "import";
+        render();
+        return;
+      }
+      if (tab === "parents" && pageRole === "admin") {
+        activeTab = "users";
+        adminUserTab = "parents";
+        parentProvisionResult = null;
+        render();
+        return;
+      }
+      if (tab === "users" && pageRole === "admin") {
+        activeTab = "users";
+        render();
+        return;
+      }
+      if (pageRole === "admin" && isAdmin() && !canAdminAccess(tab)) {
+        toast("Tài khoản Admin này chưa được cấp quyền vào khu vực đó.");
+        return;
+      }
       if (tab.startsWith("class:") && session?.role === "teacher") {
         const c = state.classes.find(c => c.id === tab.slice(6));
         if (!c || !allowedClass(c)) { toast("Bạn không có quyền truy cập lớp này."); return; }
@@ -1801,10 +2026,21 @@
     }
 
     const action = b.dataset.action;
+    if (pageRole === "admin" && isAdmin() && !canAdminAccess(activeTab)) {
+      toast("Tài khoản Admin này chưa được cấp quyền thực hiện thao tác đó.");
+      return;
+    }
     if (action === "admin-data-tab") {
       if (!requireActiveSession() || pageRole !== "admin" || !isAdmin()) { toast("Chỉ Admin mới được truy cập khu vực này."); return; }
       if (!["logs","local-backup","system-backup"].includes(b.dataset.view)) return;
       adminDataTab=b.dataset.view;
+      render();
+      return;
+    }
+    if (action === "admin-user-tab") {
+      if (!requireActiveSession() || pageRole !== "admin" || !isAdmin()) { toast("Chỉ Admin mới được truy cập khu vực này."); return; }
+      if (!["accounts","parents","import"].includes(b.dataset.view)) return;
+      adminUserTab=b.dataset.view;
       render();
       return;
     }
@@ -1981,6 +2217,10 @@
       showUserDetails(b.dataset.id,b);
       return;
     }
+    if (action === "view-subject-details") {
+      showSubjectDetails(b.dataset.id, b);
+      return;
+    }
     if (action === "view-student-review") {
       window.__studentReviewSubId = b.dataset.id;
       activeTab = "results";
@@ -2089,6 +2329,7 @@
     }
     else if (action === "toggle-user") toggleUser(b.dataset.id);
     else if (action === "view-class-details") showClassDetails(b.dataset.id);
+    else if (action === "view-subject-details") showSubjectDetails(b.dataset.id, b);
     else if (action === "export-class") {
       const c = state.classes.find(c => c.id === b.dataset.id);
       if (c) {
@@ -2099,6 +2340,19 @@
     else if (action === "export-audit") {
       const rows = [["Thời gian", "Người thực hiện", "Thao tác", "Chi tiết"], ...state.audit.map(l => [l.at, state.users.find(u => u.id === l.actor)?.name || "Hệ thống", l.action, JSON.stringify(l.detail)])];
       downloadBlob("nhat_ky_he_thong.csv", "\ufeff" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n"));
+    }
+    else if (action === "export-users") {
+      const rows = [
+        ["Họ tên", "Vai trò", "Mã hồ sơ", "Email", "Trạng thái"],
+        ...state.users.map(u => [
+          u.name || "",
+          roleName(u.role),
+          u.publicCode || "",
+          u.email || "",
+          u.active === false ? "Đã khóa" : "Đang hoạt động"
+        ])
+      ];
+      downloadBlob("danh_sach_nguoi_dung.csv", "\ufeff" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n"));
     }
     else if (action === "remove-student") removeStudent(b.dataset.id, b.dataset.class);
     else if (action === "toggle-grade") {
@@ -2311,6 +2565,10 @@
   });
 
   document.addEventListener("change", e => {
+    if (pageRole === "admin" && isAdmin() && !canAdminAccess(activeTab)) {
+      toast("Tài khoản Admin này chưa được cấp quyền thực hiện thao tác đó.");
+      return;
+    }
     if (e.target.matches("[data-classroom-class]")) {
       uiState.teacherLayoutClassId = e.target.value;
       uiState.teacherLayoutId = "";
@@ -2333,11 +2591,33 @@
 
   document.addEventListener("submit", e => {
     e.preventDefault();
+    if (pageRole === "admin" && isAdmin() && !canAdminAccess(activeTab)) {
+      toast("Tài khoản Admin này chưa được cấp quyền thực hiện thao tác đó.");
+      return;
+    }
     if (e.target.id === "login-form") {
       if (document.getElementById("login-user")) {
         const username = document.getElementById("login-user").value.trim(), password = document.getElementById("login-password").value;
-        if (username === "admin" && password === "Admin@123") { saveSession({ id: "admin-demo", role: "admin" }); activeTab = "overview"; log("ADMIN_LOGIN_DEMO"); }
-        else toast("Tài khoản hoặc mật khẩu không đúng.");
+        const adminCode = normalizeLoginCode(document.getElementById("login-admin-code")?.value);
+        const matched = adminCode
+          ? state.users.find(user => user.role === "admin" && user.codeHash &&
+            (user.codeHash === hashCode(adminCode) || user.codeHash === legacyHashCode(adminCode)))
+          : null;
+        if (matched && matched.active !== false) {
+          saveSession({ id: matched.id, role: "admin" });
+          activeTab = "overview";
+          log("CODE_LOGIN", { role: "admin" });
+        } else if (matched) {
+          toast("Tài khoản Admin đang bị khóa. Hãy liên hệ quản trị viên toàn quyền.");
+          return;
+        } else if (!adminCode && username === "admin" && password === "Admin@123") {
+          saveSession({ id: "admin-demo", role: "admin" });
+          activeTab = "overview";
+          log("ADMIN_LOGIN_DEMO");
+        } else {
+          toast("Mã Admin hoặc thông tin tài khoản không đúng.");
+          return;
+        }
       } else {
         const code = normalizeLoginCode(document.getElementById("login-code").value);
         const loginKind = pageRole === "teacher" ? "teacher" : pageRole === "parent" ? "parent" : pageRole === "learner" ? document.getElementById("login-role")?.value : "student";
@@ -2357,6 +2637,53 @@
       } catch (error) {
         showRenderError(error);
       }
+    } else if (e.target.id === "create-admin-form") {
+      if (!requireActiveSession() || pageRole !== "admin" || !canManageAdminAccess()) {
+        toast("Chỉ Admin toàn quyền mới được tạo quản trị viên và cấp quyền.");
+        return;
+      }
+      const form = e.target;
+      const name = form.elements.name.value.trim();
+      const email = form.elements.email.value.trim();
+      const adminPermissions = Array.from(form.querySelectorAll('input[name="adminPermissions"]:checked'))
+        .map(input => input.value)
+        .filter(permission => Core.ADMIN_MODULES?.includes(permission));
+      if (!name) {
+        toast("Hãy nhập họ tên quản trị viên.");
+        return;
+      }
+      if (!adminPermissions.length) {
+        toast("Hãy chọn ít nhất một quyền cho quản trị viên mới.");
+        return;
+      }
+      const loginCode = makeLoginCode("admin");
+      const adminCount = state.users.filter(user => user.role === "admin").length + 1;
+      const now = new Date().toISOString();
+      let publicCode = `ADM-${String(adminCount).padStart(4, "0")}`;
+      while (state.users.some(user => user.publicCode === publicCode)) {
+        publicCode = `ADM-${String(state.users.filter(user => user.role === "admin").length + 1).padStart(4, "0")}-${uid().slice(-4).toUpperCase()}`;
+      }
+      const newAdmin = {
+        id: uid("admin"),
+        role: "admin",
+        name,
+        email: email || null,
+        phone: null,
+        externalCode: null,
+        publicCode,
+        codeHash: hashCode(loginCode),
+        active: true,
+        createdAt: now,
+        updatedAt: now,
+        createdBy: session.id,
+        adminPermissions: [...new Set(adminPermissions)]
+      };
+      state.users.push(newAdmin);
+      persist();
+      log("CREATE_ADMIN", { userId: newAdmin.id, permissions: newAdmin.adminPermissions });
+      loginCodeReveal = { userId: newAdmin.id, code: loginCode };
+      render();
+      toast("Đã tạo quản trị viên. Hãy sao chép mã đăng nhập và gửi an toàn.", true);
     } else if (e.target.id === "admin-school-competition-form") {
       if (!requireActiveSession() || pageRole !== "admin" || !isAdmin()) {
         toast("Chỉ Admin mới được quản lý cuộc thi cấp trường.");
@@ -2398,7 +2725,8 @@
         toast("Môn học này đã tồn tại.");
         return;
       }
-      const subject = { id: uid("subject"), name, active: true, createdAt: new Date().toISOString(), createdBy: session.id };
+      const code = subjectCode(name);
+      const subject = { id: uid("subject"), code, name, active: true, createdAt: new Date().toISOString(), createdBy: session.id };
       state.subjects.push(subject);
       try {
         persist();

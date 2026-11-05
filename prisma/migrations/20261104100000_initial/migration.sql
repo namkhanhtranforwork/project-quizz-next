@@ -343,3 +343,17 @@ ALTER TABLE "classroom_layouts" ADD CONSTRAINT "classroom_layouts_class_id_fkey"
 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Enable RLS on exposed tables; add role-specific policies when server auth is implemented.
+ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "classes" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "subjects" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "class_students" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "class_teacher_assignments" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "student_guardians" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "quizzes" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "quiz_versions" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "quiz_assignments" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "submissions" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "classroom_layouts" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "audit_logs" ENABLE ROW LEVEL SECURITY;
